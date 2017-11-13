@@ -1,6 +1,7 @@
 ;;;; lyrips.lisp
 
-(in-package #:lyrips)
+(in-package #:lyrips) 
+;; (ql:quickload '(:dexador :plump :lquery :lparallel))
 
 (defun artist&song->metrolyrics-url (artist song)
   (let* ((->dash (lambda (x)  (values (cl-ppcre:regex-replace-all "\\s" x "-"))))
