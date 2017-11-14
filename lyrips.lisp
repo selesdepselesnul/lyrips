@@ -78,3 +78,16 @@
          (lyric (reduce (lambda (x acc)  (concatenate 'string x acc))  lyric-vec))) 
     (values lyric)))
 
+(defun create-songlyrics-url (artist song)
+  (format nil
+          "http://www.songlyrics.com/~a/~a-lyrics/"
+          (space->- artist)
+          (space->- song)))
+
+(defun get-songlyrics (artist song)
+  (let* ((request (dex:get (create-songlyrics-url artist song)))
+         (parsed-content (plump:parse request))
+         (lyric-vec (lquery:$  parsed-content "#songLyricsDiv" (text)))
+         (lyric (reduce (lambda (x acc)  (concatenate 'string x acc))  lyric-vec))) 
+    (values lyric)))
+
