@@ -8,7 +8,8 @@
                #plump
                #lquery
                #lparallel
-               #cl-ppcre)
+               #cl-ppcre
+               #cl-strings)
   :serial t
   :components ((:file "package")
                (:file "lyrips")))

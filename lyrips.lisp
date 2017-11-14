@@ -1,7 +1,10 @@
 ;;;; lyrips.lisp
 
 (in-package #:lyrips) 
-;; (ql:quickload '(:dexador :plump :lquery :lparallel :cl-ppcre))
+;; (ql:quickload '(:dexador :plump :lquery :lparallel :cl-ppcre :cl-strings))
+
+(defun space-> (str replacer)
+  (values (cl-ppcre:regex-replace-all "\\s" str replacer)))y
 
 (defun space->- (x)
   (values (cl-ppcre:regex-replace-all "\\s" x "-")))
@@ -59,3 +62,19 @@
                               lyric
                               "")
                              "[Verse 1"))))
+
+(defun create-wikia-lyric-url (artist song)
+  (flet ((space->title-case-with-_ (x)
+           (space-> (cl-strings:title-case x) "_")))
+    (format nil
+            "http://lyrics.wikia.com/wiki/~a:~a"
+            (space->title-case-with-_ artist)
+            (space->title-case-with-_ song))))
+
+(defun get-wikia-lyric (artist song)
+  (let* ((request (dex:get (create-wikia-lyric-url artist song)))
+         (parsed-content (plump:parse request))
+         (lyric-vec (lquery:$  parsed-content "div.lyricbox" (text)))
+         (lyric (reduce (lambda (x acc)  (concatenate 'string x acc))  lyric-vec))) 
+    (values lyric)))
+
