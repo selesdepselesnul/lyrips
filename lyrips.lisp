@@ -18,10 +18,13 @@
     (funcall f-html-lyric-mapper lyric-vec)))
 
 (defun get-lyric-with-dex (artist song f-url-creator selector f-html-lyric-mapper)
-  (let ((html-string (dex-get artist
-                              song
-                              f-url-creator)))
-    (get-lyric html-string selector f-html-lyric-mapper)))
+  (handler-case
+      (let ((html-string (dex-get artist
+                                  song
+                                  f-url-creator)))
+        (get-lyric html-string selector f-html-lyric-mapper))
+    (dex:http-request-bad-request () nil)
+    (dex:http-request-failed (e) nil)))
 
 (defmacro def-lyric (name selector url-creator mapper)
   `(defun ,name (artist song)
@@ -117,8 +120,3 @@
 
 (def-lyric get-songlyrics "#songLyricsDiv" #'songlyrics-url-creator #'songlyrics-mapper)
 ;;;
-
-
-
-
-
