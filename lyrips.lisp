@@ -23,7 +23,7 @@
                                   song
                                   f-url-creator)))
         (get-lyric html-string selector f-html-lyric-mapper))
-    (dex:http-request-bad-request () nil)
+    (dex:http-request-bad-request (e) nil)
     (dex:http-request-failed (e) nil)))
 
 (defmacro def-lyric (name selector url-creator mapper)
@@ -55,14 +55,13 @@
 
 
 (defun azlyrics-mapper (xs)
-  (values
-   (cl-ppcre:regex-replace-all
-    ".*ba.*"
+  (cl-ppcre:regex-replace-all
+   ".*ba.*"
+   (cl-ppcre:regex-replace
+    "(?s)if  \\(.*"
     (cl-ppcre:regex-replace
-     "(?s)if  \\(.*"
-     (cl-ppcre:regex-replace
-      "(?s).+Usage of azlyrics\.com .+ Sorry about that\."
-      (elt xs 3)"")"")"")))
+     "(?s).+Usage of azlyrics\.com .+ Sorry about that\."
+     (elt xs 3)"")"")""))
 
 (def-lyric get-azlyrics "div.text-center" #'azlyrics-url-creator #'azlyrics-mapper)
 ;;;
@@ -121,10 +120,11 @@
 (def-lyric get-songlyrics "#songLyricsDiv" #'songlyrics-url-creator #'songlyrics-mapper)
 ;;;
 
-(defun get-lyric-from-sites (xs artist song)
-  (when (/= 0 (length xs))
-    (let ((result (funcall (car xs) artist song)))
-      (if (null result)
-          (get-lyric-from-sites (cdr xs))
-          result))))
+(defun get-lyric-from-sites (f-xs artist song)
+  (let ((func (car f-xs)))
+    (when (not (null func))
+      (let ((result (funcall func artist song)))
+        (if (null result)
+            (get-lyric-from-sites (cdr f-xs) artist song)
+            result)))))
 
