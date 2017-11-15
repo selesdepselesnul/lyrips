@@ -120,3 +120,11 @@
 
 (def-lyric get-songlyrics "#songLyricsDiv" #'songlyrics-url-creator #'songlyrics-mapper)
 ;;;
+
+(defun get-lyric-from-sites (xs artist song)
+  (when (/= 0 (length xs))
+    (let ((result (funcall (car xs) artist song)))
+      (if (null result)
+          (get-lyric-from-sites (cdr xs))
+          result))))
+
