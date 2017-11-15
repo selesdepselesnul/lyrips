@@ -23,6 +23,14 @@
                               f-url-creator)))
     (get-lyric html-string selector f-html-lyric-mapper)))
 
+(defmacro def-lyric (name selector url-creator mapper)
+  `(defun ,name (artist song)
+     (get-lyric-with-dex artist
+                         song
+                         ,url-creator
+                         ,selector
+                         ,mapper)))
+;;; metrolyrics
 (defun metrolyrics-url-creator (artist song)
   (let ((artist-metro (space->- artist))
         (song-metro (space->- song)))
@@ -31,18 +39,17 @@
 (defun metrolyrics-mapper (xs)
   (reduce (lambda (x acc)  (concatenate 'string x acc)) xs))
 
-(defun get-metrolyrics (artist song)
-  (get-lyric-with-dex artist
-                      song
-                      #'metrolyrics-url-creator
-                      "p.verse"
-                      #'metrolyrics-mapper))
+(def-lyric get-metrolyrics "p.verse" #'metrolyrics-url-creator #'metrolyrics-mapper)
+;;;
 
+
+;;; azlyrics
 (defun azlyrics-url-creator (artist song)
   (let* ((->trim-all (lambda (x) (cl-ppcre:regex-replace-all " +" x "")))
          (artist-az (funcall ->trim-all artist))
          (song-az (funcall ->trim-all song)))
     (format nil "https://www.azlyrics.com/lyrics/~a/~a.html" artist-az song-az)))
+
 
 (defun azlyrics-mapper (xs)
   (values
@@ -54,12 +61,8 @@
       "(?s).+Usage of azlyrics\.com .+ Sorry about that\."
       (elt xs 3)"")"")"")))
 
-(defun get-azlyrics (artist song)
-  (get-lyric-with-dex artist
-                      song
-                      #'azlyrics-url-creator
-                      "div.text-center" 
-                      #'azlyrics-mapper))
+(def-lyric get-azlyrics "div.text-center" #'azlyrics-url-creator #'azlyrics-mapper)
+;;;
 
 ;; (with-open-file (str file-path
 ;;                      :direction :output
@@ -67,6 +70,7 @@
 ;;                      :if-does-not-exist :create)
 ;;   (format str large-string))
 
+;;; genius
 (defun genius-url-creator (artist song)
   (let* ((artist-genius (space->- artist))
          (song-genius (space->- song)))
@@ -81,13 +85,10 @@
                             "")
                            "[Verse 1")))
 
-(defun get-genius (artist song)
-  (get-lyric-with-dex artist
-                      song
-                      #'genius-url-creator
-                      "div.lyrics"
-                      #'genius-mapper))
+(def-lyric get-genius "div.lyrics" #'genius-url-creator #'genius-mapper)
+;;;
 
+;;; wikialyric
 (defun wikialyric-url-creator (artist song)
   (flet ((space->title-case-with-_ (x)
            (space-> (cl-strings:title-case x) "_")))
@@ -100,13 +101,10 @@
   (values
    (reduce (lambda (x acc) (concatenate 'string x acc)) xs)))
 
-(defun get-wikialyric (artist song)
-  (get-lyric-with-dex artist
-                      song
-                      #'wikialyric-url-creator
-                      "div.lyricbox"
-                      #'wikialyric-mapper))
+(def-lyric get-wikialyric "div.lyricbox" #'wikialyric-url-creator #'wikialyric-mapper)
+;;;
 
+;;; songlyrics
 (defun songlyrics-url-creator (artist song)
   (format nil
           "http://www.songlyrics.com/~a/~a-lyrics/"
@@ -117,9 +115,10 @@
   (values
    (reduce (lambda (x acc) (concatenate 'string x acc)) xs)))
 
-(defun get-songlyrics (artist song)
-  (get-lyric-with-dex artist
-                      song
-                      #'songlyrics-url-creator
-                      "#songLyricsDiv"
-                      #'songlyrics-mapper))
+(def-lyric get-songlyrics "#songLyricsDiv" #'songlyrics-url-creator #'songlyrics-mapper)
+;;;
+
+
+
+
+
