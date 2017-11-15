@@ -4,10 +4,10 @@
 ;; (ql:quickload '(:dexador :plump :lquery :lparallel :cl-ppcre :cl-strings))
 
 (defun space-> (str replacer)
-  (values (cl-ppcre:regex-replace-all "\\s" str replacer)))
+  (cl-ppcre:regex-replace-all "\\s" str replacer))
 
 (defun space->- (x)
-  (values (cl-ppcre:regex-replace-all "\\s" x "-")))
+  (cl-ppcre:regex-replace-all "\\s" x "-"))
 
 (defun dex-get (artist song f-url-creator)
   (dex:get (funcall f-url-creator artist song)))
@@ -79,13 +79,12 @@
     (format nil "https://genius.com/~a-~a-lyrics" artist-genius song-genius)))
 
 (defun genius-mapper (xs)
-  (values
-   (cl-ppcre:regex-replace "(?s).*Verse 1"
-                           (cl-ppcre:regex-replace
-                            "(?s)/sse.*/sse"
-                            (reduce (lambda (x acc) (concatenate 'string x acc)) xs)
-                            "")
-                           "[Verse 1")))
+  (cl-ppcre:regex-replace "(?s).*Verse 1"
+                          (cl-ppcre:regex-replace
+                           "(?s)/sse.*/sse"
+                           (reduce (lambda (x acc) (concatenate 'string x acc)) xs)
+                           "")
+                          "[Verse 1"))
 
 (def-lyric get-genius "div.lyrics" #'genius-url-creator #'genius-mapper)
 ;;;
@@ -100,8 +99,7 @@
             (space->title-case-with-_ song))))
 
 (defun wikialyric-mapper (xs)
-  (values
-   (reduce (lambda (x acc) (concatenate 'string x acc)) xs)))
+  (reduce (lambda (x acc) (concatenate 'string x acc)) xs))
 
 (def-lyric get-wikialyric "div.lyricbox" #'wikialyric-url-creator #'wikialyric-mapper)
 ;;;
@@ -114,8 +112,7 @@
           (space->- song)))
 
 (defun songlyrics-mapper (xs)
-  (values
-   (reduce (lambda (x acc) (concatenate 'string x acc)) xs)))
+  (reduce (lambda (x acc) (concatenate 'string x acc)) xs))
 
 (def-lyric get-songlyrics "#songLyricsDiv" #'songlyrics-url-creator #'songlyrics-mapper)
 ;;;
