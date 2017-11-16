@@ -1,7 +1,6 @@
 ;;;; lyrips.lisp
 
 (in-package #:lyrips) 
-;; (ql:quickload '(:dexador :plump :lquery :lparallel :cl-ppcre :cl-strings))
 
 (defun space-> (str replacer)
   (cl-ppcre:regex-replace-all "\\s" str replacer))
@@ -125,3 +124,9 @@
             (get-lyric-from-sites (cdr f-xs) artist song)
             result)))))
 
+(defun get-lyric-from-sites-async (f-xs artist song f-completed)
+  (bt:make-thread
+   (lambda ()
+     (funcall f-completed (get-lyric-from-sites f-xs
+                                                artist
+                                                song)))))

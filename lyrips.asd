@@ -9,7 +9,8 @@
                #:lquery
                #:lparallel
                #:cl-ppcre
-               #:cl-strings)
+               #:cl-strings
+               #:bordeaux-threads)
   :serial t
   :components ((:file "package")
                (:file "lyrips")))
